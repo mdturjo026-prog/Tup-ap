@@ -4,9 +4,9 @@ import json
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler
 
-TOKEN = os.environ['8607390888:AAHdvuCwsDjrjaW7tli_qFWnrm1Aq2Pkf_8']
-ADMIN_ID = int(os.environ['7827023967'])
-GROUP_ID = int(os.environ['-5102848972'])
+7  TOKEN = "8607390888:AAHdvuCwsDjrjaW7tli_qFWnrm1Aq2Pkf_8"
+8  ADMIN_ID = 7827023967
+9  GROUP_ID = -5102848972
 
 conn = sqlite3.connect('exchange.db', check_same_thread=False)
 cur = conn.cursor()
