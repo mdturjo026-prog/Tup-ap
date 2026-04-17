@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USD Exchange & TopUp BD</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+:root{
+--bg:#0f1220;
+--card:#171a2e;
+--txt:#e8ecff;
+--accent:#7c5cff;
+}
+
+body{
+margin:0;
+background:var(--bg);
+color:var(--txt);
+font-family:sans-serif;
+}
+
+.wrap{padding:15px;max-width:800px;margin:auto;}
+
+.card{
+background:var(--card);
+padding:15px;
+border-radius:12px;
+margin-bottom:10px;
+}
+
+.btn{
+padding:10px;
+border:none;
+border-radius:8px;
+background:var(--accent);
+color:white;
+cursor:pointer;
+width:100%;
+}
+
+.input{
+width:100%;
+padding:10px;
+border-radius:8px;
+border:none;
+margin-top:5px;
+}
+
+.modal{
+position:fixed;
+top:0;left:0;right:0;bottom:0;
+background:rgba(0,0,0,.6);
+display:none;
+justify-content:center;
+align-items:center;
+}
+
+.sheet{
+background:#1b1f3a;
+padding:15px;
+border-radius:12px;
+width:90%;
+max-width:400px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<div class="card">
+<h3>Buy USD</h3>
+<p id="buyRate">120৳ = $1</p>
+<button class="btn" onclick="openBuy()">Buy</button>
+</div>
+
+<div class="card">
+<h3>Sell USD</h3>
+<p id="sellRate">$1 = 110৳</p>
+<button class="btn" onclick="openSell()">Sell</button>
+</div>
+
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal">
+<div class="sheet" id="modalBody"></div>
+</div>
+
+<script>
+const tg = window.Telegram.WebApp;
+tg.expand();
+
+// Settings (later backend থেকে load করতে পারবা)
+const SETTINGS = {
+buy_rate:120,
+sell_rate:110,
+min_buy:1,
+max_buy:100,
+min_sell:1,
+max_sell:100,
+bkash_number:"017XXXXXXXX",
+paypal_email:"example@gmail.com",
+usdt_address:"TXXXXXX"
+};
+
+// Modal
+function openModal(html){
+document.getElementById("modalBody").innerHTML = html;
+document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal(){
+document.getElementById("modal").style.display = "none";
+}
+
+// BUY
+function openBuy(){
+openModal(`
+<h3>Buy USD</h3>
+<input class="input" id="usd" placeholder="USD Amount (${SETTINGS.min_buy}-${SETTINGS.max_buy})">
+<input class="input" id="txid" placeholder="bKash TXID">
+<button class="btn" onclick="submitBuy()">Submit</button>
+`);
+}
+
+function submitBuy(){
+let usd = document.getElementById("usd").value;
+let tx = document.getElementById("txid").value;
+
+if(!usd || !tx){
+tg.showAlert("Fill all fields");
+return;
+}
+
+if(usd < SETTINGS.min_buy || usd > SETTINGS.max_buy){
+tg.showAlert("Amount out of limit");
+return;
+}
+
+// ✅ FIXED (Bot compatible)
+tg.sendData(JSON.stringify({
+action:"buy_product",
+usd_amount:usd,
+trxid:tx,
+product_id:0,
+number:''
+}));
+
+closeModal();
+}
+
+// SELL
+function openSell(){
+openModal(`
+<h3>Sell USD</h3>
+<input class="input" id="usd" placeholder="USD Amount (${SETTINGS.min_sell}-${SETTINGS.max_sell})">
+<input class="input" id="txid" placeholder="PayPal TXID / USDT Hash">
+<input class="input" id="bkash" placeholder="bKash Number">
+<button class="btn" onclick="submitSell()">Submit</button>
+`);
+}
+
+function submitSell(){
+let usd = document.getElementById("usd").value;
+let tx = document.getElementById("txid").value;
+let bkash = document.getElementById("bkash").value;
+
+if(!usd || !tx || !bkash){
+tg.showAlert("Fill all fields");
+return;
+}
+
+if(usd < SETTINGS.min_sell || usd > SETTINGS.max_sell){
+tg.showAlert("Amount out of limit");
+return;
+}
+
+// ✅ FIXED (Bot compatible)
+tg.sendData(JSON.stringify({
+action:"sell_usd",
+usd_amount:usd,
+txid:tx,
+number:bkash
+}));
+
+closeModal();
+}
+
+// Close modal
+document.getElementById("modal").onclick = function(e){
+if(e.target.id === "modal") closeModal();
+}
+</script>
+
+</body>
+</html>
